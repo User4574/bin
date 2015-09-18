@@ -1,0 +1,15 @@
+#!/bin/bash
+
+WD=$([ "x" == "x$1" ] && echo $PWD || echo $1)
+
+GITS=$(find $WD -type d | egrep '\.git$')
+
+echo $GITS
+
+exit 0
+
+for i in $GITS
+do
+  cd $i
+  git pull
+done

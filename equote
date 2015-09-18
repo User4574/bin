@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+LINELENGTH = (ARGV.shift || 72).to_i
+
+lines = $stdin.readlines
+
+lines = lines.map { |line|
+  if line.length > (LINELENGTH-2) then
+    newlines = []
+    while line.length > (LINELENGTH-2) do
+      i = LINELENGTH-2
+      while line[i] != " " do
+        i -= 1
+      end
+      newlines << line[0...i]
+      line = line[i..-1]
+    end
+    newlines << line
+    newlines
+  else
+    line
+  end
+}
+
+lines = lines.flatten
+
+lines = lines.map { |line|
+  "> #{line}"
+}
+
+puts lines

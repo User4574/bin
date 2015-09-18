@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+cmd = ['dd']
+countarg = nil
+
+def decr(mult)
+  return {
+    'c'  => ['c',  1],
+    'w'  => ['c',  2],
+    'b'  => ['c',  512],
+    'kB' => ['w',  500],
+    'K'  => ['w',  512],
+    'MB' => ['kB', 1000],
+    'M'  => ['K',  1024],
+    'GB' => ['MB', 1000],
+    'G'  => ['M',  1024],
+    'TB' => ['GB', 1000],
+    'T'  => ['G',  1024],
+    'PB' => ['TB', 1000],
+    'P'  => ['T',  1024],
+    'EB' => ['PB', 1000],
+    'E'  => ['P',  1024],
+    'ZB' => ['EB', 1000],
+    'Z'  => ['E',  1024],
+    'YB' => ['ZB', 1000],
+    'Y'  => ['Z',  1024],
+  }[mult]
+end
+
+def parsecount(countarg)
+  if countarg =~ /^(\d+)(c|w|b|kB|K|[MGTPEZY]B?)$/
+    if $1 == '1' then
+      unit, num = decr($2)
+      count = "count=1#{unit}"
+      seeks = (0...num).map do |i|
+        "seek=#{i}#{unit}"
+      end
+    else
+      count = "count=1#{$2}"
+      seeks = (0...($1.to_i)).map do |i|
+        "seek=#{i}#{$2}"
+      end
+    end
+    return count, seeks
+  else
+    puts "BAD COUNT"
+    exit 1
+  end
+end
+
+ARGV.each do |arg|
+  if arg =~ /count=(.*)/ then
+    countarg=$1
+  else
+    cmd << arg
+  end
+end
+
+if countarg.nil? then
+  run = cmd.join(' ')
+  puts "*** " + run
+  system(run)
+else
+  count, seeks = parsecount(countarg)
+  seeks.each do |seek|
+    run = (cmd + [seek, count]).join(' ')
+    puts "*** " + run
+    system(run)
+  end
+end

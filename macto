@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+TO = ARGV.shift.chomp.downcase
+MAC = ARGV.shift.chomp.gsub(/[.:]/, '')
+UPPER = ARGV.shift ? true : false
+
+if MAC.match(/[0-9a-fA-F]{12}/).nil? then
+  puts "Not a valid MAC"
+  exit 1
+end
+
+case TO
+  when 'cisco'
+    puts (UPPER ? MAC.upcase : MAC).scan(/[A-Fa-f0-9]{4}/).join('.')
+  when 'canonical'
+    puts (UPPER ? MAC.upcase : MAC).scan(/[A-Fa-f0-9]{2}/).join(':')
+end

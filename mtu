@@ -1,0 +1,69 @@
+#!/bin/bash
+
+function actually_just_show {
+  echo "The MTU of $iface is $nowmtu."
+  exit 0
+}
+
+function get_default_iface {
+  iface=$(ip a | grep "state UP" | cut -d: -f2 | tr -d '[[:space:]]')
+  if [ "x" == "x$iface" ]
+  then
+    echo "No active iface"
+    exit 1
+  fi
+}
+
+function get_current_mtu {
+  nowmtu=$(</sys/class/net/$iface/mtu)
+}
+
+function get_new_mtu {
+  case "$nowmtu" in
+  1500) mtu=1492
+        ;;
+  *)    mtu=1500
+        ;;
+  esac
+}
+
+function guess_at_remainder {
+  for i in $@; do
+    case "$i" in
+    show)       actually_just_show
+                ;;
+    [0-9]*)     mtu=$i
+                ;;
+    [a-zA-Z]*)  iface=$i
+                ;;
+    esac
+  done
+}
+
+OPTIND=1
+
+get_default_iface
+get_current_mtu
+get_new_mtu
+
+while getopts "i:m:" opt; do
+    case "$opt" in
+    i)  iface=$OPTARG
+        ;;
+    m)  mtu=$OPTARG
+        ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+[ "$1" = "--" ] && shift
+
+guess_at_remainder $@
+
+echo -n "Set MTU of $iface to $mtu? [Y/n] "
+read yn
+
+if [ "x${yn,,}" != "xn" ]; then
+  echo $mtu | sudo tee "/sys/class/net/$iface/mtu" > /dev/null
+fi

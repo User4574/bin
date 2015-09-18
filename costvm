@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+if ARGV.length == 0 then
+  puts "Usage: costvm CORES MEMORY DISKS"
+  exit
+end
+
+CORES = ARGV.shift.chomp.to_i
+MEM = ARGV.shift.chomp.to_i
+DISKS = ARGV.shift.chomp.split(',')
+
+if CORES > 16 then
+  puts "Invalid machine. Too many cores: #{CORES}."
+  exit 1
+end
+
+if MEM > 180 then
+  puts "Invalid machine. Too much memory: #{MEM} GiB."
+  exit 1
+end
+
+if DISKS.length > 8 then
+  puts "Invalid machine. Too many disks: #{DISKS.length}."
+  exit 1
+end
+
+memmin = (CORES - 1) * 4
+
+def max(a,b)
+  if a > b then
+    return a
+  else
+    return b
+  end
+end
+
+cost = max(memmin, MEM) * 10
+
+firstdisk = true
+
+DISKS.each do |disk|
+  grade, size = disk.split(':')
+  if size.nil? then
+    size = grade
+    grade = 'sata'
+  end
+
+  size = size.to_i
+
+  case grade
+  when 'sata'
+    if firstdisk then
+      cost += (max((size - 25), 0)/10.0).ceil * 2
+      firstdisk = false
+    else
+      cost += (size/10.0).ceil * 2
+    end
+  when 'sas'
+    cost += (size/5.0).ceil * 2
+  when 'ssd'
+    cost += (size/0.5).ceil * 2
+  when 'archive'
+    cost += (size/50.0).ceil * 2
+  end
+end
+
+puts "Machine cost: £#{cost}.00"

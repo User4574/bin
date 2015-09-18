@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+def ip2num(ip)
+  ipa = ip.split(".").map(&:to_i)
+  return (ipa[0] * (256 ** 3)) + (ipa[1] * (256 ** 2)) + (ipa[2] * 256) + ipa[3]
+end
+
+def num2ip(ipi)
+  outa = []
+  outa[3] = ipi % 256
+  outa[2] = (ipi / 256) % 256
+  outa[1] = (ipi / (256 ** 2)) % 256
+  outa[0] = (ipi / (256 ** 3)) % 256
+  return outa.map(&:to_s).join(".")
+end
+
+def boundarycheck(ip, cidr)
+  bound = 2**(32-cidr)
+  return (ip2num(ip) % bound) == 0
+end
+
+def addip(ip, x)
+  ipi = ip2num(ip)
+  ipi += x
+  return num2ip(ipi)
+end
+
+if ARGV.length == 0 then
+  puts "Usage: geneni ip[/cidr] iface [alias start]"
+  exit
+end
+
+IPCIDR = ARGV.shift.split("/")
+IP = IPCIDR[0]
+CIDR = IPCIDR[1].nil? ? 32 : IPCIDR[1].to_i
+IFACE = ARGV.shift
+START = (ARGV.shift or "1").to_i
+
+unless boundarycheck(IP, CIDR) then
+  puts "Invalid CIDR Boundary"
+  exit 1
+end
+
+(2**(32-CIDR)).times do |x|
+  puts "auto #{IFACE}:#{x+START}"
+  puts "iface #{IFACE}:#{x+START} inet static"
+  puts "\taddress #{addip(IP, x)}"
+  puts "\tnetmask #{num2ip(("1"*CIDR + "0"*(32-CIDR)).to_i(2))}"
+  #puts "\tnetmask 255.255.255.255"
+end

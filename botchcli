@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SUBCHAR=!
+
+[[ "$*" =~ $SUBCHAR ]] && WORK=$* || WORK="$* $SUBCHAR"
+
+echo -n "[botchcli] $WORK> "
+while read LINE; do
+  if [ "x$LINE" == "x" ] ; then
+    echo -n
+  elif [ "x${LINE,,}" == "xquit" ] ; then
+    exit 0
+  else
+    ${WORK/$SUBCHAR/$LINE}
+  fi
+  echo -n "[botchcli] $WORK> "
+done

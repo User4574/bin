@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+options = {
+  :seperator => :lines,
+  :sort => :none,
+  :reverse => false
+}
+
+parser = OptionParser.new do |opt|
+  opt.banner = "Usage: count"
+  opt.on("-s", "--spaces", "Seperate records with spaces rather than newlines") do
+    options[:seperator] = :spaces
+  end
+  opt.on("-r", "--sort-by-record", "Sort output by record") do |arg|
+    if options[:sort] == :none then
+      options[:sort] = :record
+    else
+      puts "Flags -c and -l are incompatible"
+      exit 1
+    end
+  end
+  opt.on("-c", "--sort-by-count", "Sort output by count") do |arg|
+    if options[:sort] == :none then
+      options[:sort] = :count
+    else
+      puts "Flags -c and -l are incompatible"
+      exit 1
+    end
+  end
+  opt.on("-v", "--reverse", "Reverse sort") do
+    options[:reverse] = true
+  end
+  opt.on("-q", "--summary", "Print total only") do
+    options[:summary] = true
+  end
+  opt.on("-h", "--help", "Print usage") do
+    puts opt.banner
+    puts opt.summarize
+    exit 0
+  end
+end
+
+parser.parse!
+
+if options[:seperator] == :lines then
+  lines = $stdin.readlines.map(&:chomp)
+else
+  lines = $stdin.readlines[0].chomp.split
+end
+
+if options[:summary] then
+  puts "[#{lines.length}] Total"
+  exit 0
+end
+
+counts = Hash.new
+
+lines.each do |line|
+  if counts.include? line then
+    counts[line] += 1
+  else
+    counts[line] = 1
+  end
+end
+
+width = Math.log10(counts.values.max).ceil
+
+sorted = case options[:sort]
+         when :none
+           counts.to_a
+         when :count
+           counts.sort_by{|record, count| count}
+         when :record
+           counts.sort_by{|record, count| record}
+         end
+
+sorted.reverse! if options[:reverse]
+
+sorted.each do |entry|
+  puts "[%#{width}d] %s" % entry.reverse
+end
+
+maxrec = counts.keys.map(&:length).max
+
+(maxrec + width + 3).times do
+  print '-'
+end
+puts
+
+puts "[#{lines.length}] Total"
+exit 0
