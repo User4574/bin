@@ -6,7 +6,7 @@ function actually_just_show {
 }
 
 function get_default_iface {
-  iface=$(ip a | grep "state UP" | cut -d: -f2 | tr -d '[[:space:]]')
+  iface=$(ip a | grep "state UP" | grep -v "virbr0" | cut -d: -f2 | tr -d '[[:space:]]')
   if [ "x" == "x$iface" ]
   then
     echo "No active iface"
