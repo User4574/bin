@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# This executable does nothing by itself. Setup links with:
+# ln -s manyplayer next
+# ln -s manyplayer same
+# ln -s manyplayer guessfile
+
+if [ "x${MANYPLAYER_DIR}" == "x" ] ; then
+  MANYPLAYER_DIR=~/.manyplayer
+fi
+
+exe=$(basename $0)
+
+function check {
+  if [ ! -f ${MANYPLAYER_DIR}/cmd ] ; then
+    echo "No command in manyplayer config (${MANYPLAYER_DIR}/cmd)."
+    exit 1
+  fi
+  if [ ! -f ${MANYPLAYER_DIR}/last ] ; then
+    echo "Position unspecified (${MANYPLAYER_DIR}/cmd)."
+    exit 1
+  fi
+  if [ ! -f ${MANYPLAYER_DIR}/filename ] ; then
+    echo "Filename template unspecified (${MANYPLAYER_DIR}/cmd)."
+    exit 1
+  fi
+}
+
+function play_last_file {
+  local comm=$(<${MANYPLAYER_DIR}/cmd)
+  local this=$(<${MANYPLAYER_DIR}/last)
+  local filename=$(<${MANYPLAYER_DIR}/filename)
+  exec ${comm/!/${filename/!/$this}}
+}
+
+function play_next_file {
+  local thelast=$(<${MANYPLAYER_DIR}/last)
+  local thenext=$(printf %02d $(($thelast + 1)))
+  echo -n $thenext > ${MANYPLAYER_DIR}/last
+  play_last_file
+}
+
+function guess_filename {
+  local guess=$(echo *$1*)
+  local name=${guess/$1/!}
+  echo -n $name > ${MANYPLAYER_DIR}/filename
+
+  if [ "x$2" == "x" ] ; then
+    echo -n 00 > ${MANYPLAYER_DIR}/last
+  else
+    echo -n $2 > ${MANYPLAYER_DIR}/last
+  fi
+}
+
+if [ "x$exe" == "xnext" ] ; then
+  check
+  play_next_file
+elif [ "x$exe" == "xsame" ] ; then
+  check
+  play_last_file
+elif [ "x$exe" == "xguessfile" ] ; then
+  if [ "x$1" == "x" ] ; then
+    echo "Need a guess statement, try '01'."
+    exit 1
+  else
+    guess_filename $1 $2
+  fi
+else
+  echo "'$exe' doesn't look like a manyplayer command..."
+  exit 1
+fi
