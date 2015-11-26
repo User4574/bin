@@ -30,7 +30,7 @@ function play_last_file {
   local comm=$(<${MANYPLAYER_DIR}/cmd)
   local this=$(<${MANYPLAYER_DIR}/last)
   local filename=$(<${MANYPLAYER_DIR}/filename)
-  exec ${comm/!/${filename/!/$this}}
+  exec $comm "${filename/!/$this}"
 }
 
 function play_next_file {
