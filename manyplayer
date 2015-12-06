@@ -46,9 +46,15 @@ function play_last_file {
 
 function play_next_file {
   local thelast=$(<${MANYPLAYER_DIR}/last)
-  local thenext=$(printf %02d $(($thelast + 1)))
+  local thenext=$(printf %02d $((10#$thelast + 1)))
   echo -n $thenext > ${MANYPLAYER_DIR}/last
   play_last_file
+}
+
+function tell_last_file {
+  local this=$(<${MANYPLAYER_DIR}/last)
+  local filename=$(<${MANYPLAYER_DIR}/filename)
+  echo "Last: ${filename/!/$this}"
 }
 
 function setup {
@@ -77,6 +83,7 @@ Manyplayer version 0.5
 Usage:
   next                      Watch next episode
   same                      Watch the last episode again
+  tell                      Print the last filename
   manyplayer setup <guess>  Setup manyplayer for this directory
   manyplayer cmd <cmd>      Set the command for this directory
   manyplayer pos <pos>      Set the position for this directory
@@ -90,6 +97,9 @@ if [ "x$exe" == "xnext" ] ; then
 elif [ "x$exe" == "xsame" ] ; then
   check
   play_last_file
+elif [ "x$exe" == "xtell" ] ; then
+  check
+  tell_last_file
 elif [ "x$exe" == "xmanyplayer" ] ; then
   if [ "x$1" == "xsetup" ] ; then
     if [ "x$2" == "x" ] ; then
