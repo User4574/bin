@@ -8,7 +8,9 @@ if [ "x${MANYPLAYER_BASE_DIR}" == "x" ] ; then
   MANYPLAYER_BASE_DIR=~/.manyplayer
 fi
 
-THIS_DIR=${PWD//\//_}
+THIS_DIR=${PWD}
+THIS_DIR=${THIS_DIR//\//_}
+THIS_DIR=${THIS_DIR// /_}
 MANYPLAYER_DIR=${MANYPLAYER_BASE_DIR}/${THIS_DIR}
 
 exe=$(basename $0)
@@ -58,6 +60,8 @@ function tell_last_file {
 }
 
 function setup {
+  [ -d ${MANYPLAYER_DIR} ] || mkdir ${MANYPLAYER_DIR}
+  
   local guess=$(echo *$1*)
   local name=${guess/$1/!}
   echo -n $name > ${MANYPLAYER_DIR}/filename
