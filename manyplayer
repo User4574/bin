@@ -66,11 +66,8 @@ function setup {
   local name=${guess/$1/!}
   echo -n $name > ${MANYPLAYER_DIR}/filename
 
-  if [ "x$2" == "x" ] ; then
-    echo -n 00 > ${MANYPLAYER_DIR}/last
-  else
-    echo -n $2 > ${MANYPLAYER_DIR}/last
-  fi
+  local thelast=$(printf %02d $((10#$1 - 1)))
+  echo -n $thelast > ${MANYPLAYER_DIR}/last
 }
 
 function set_cmd {
