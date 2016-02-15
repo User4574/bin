@@ -2,13 +2,14 @@
 # encoding: utf-8
 
 if ARGV.length == 0 then
-  puts "Usage: costvm CORES MEMORY DISKS"
+  puts "Usage: costvm CORES MEMORY DISKS [windows]"
   exit
 end
 
 CORES = ARGV.shift.chomp.to_i
 MEM = ARGV.shift.chomp.to_i
 DISKS = ARGV.shift.chomp.split(',')
+WINDOWS = !ARGV.shift.nil?
 
 if CORES > 16 then
   puts "Invalid machine. Too many cores: #{CORES}."
@@ -64,5 +65,7 @@ DISKS.each do |disk|
     cost += (size/50.0).ceil * 2
   end
 end
+
+cost += MEM if WINDOWS
 
 puts "Machine cost: £#{cost}.00"
