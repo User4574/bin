@@ -62,7 +62,7 @@ DISKS.each do |disk|
   when 'ssd'
     cost += (size/0.5).ceil * 2
   when 'archive'
-    cost += (size/50.0).ceil * 2
+    cost += (size/100.0).ceil * 2
   end
 end
 

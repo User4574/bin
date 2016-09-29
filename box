@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+options = {
+  :border => 3,
+  :margin => 1,
+  :character => '='
+}
+
+parser = OptionParser.new do |opt|
+  opt.banner = "Usage: box [OPTIONS] WORDS"
+
+  opt.on("-c", "--border-character", :REQUIRED, "Border character (default: =)") do |c|
+    options[:character] = c
+  end
+  opt.on("-b", "--border-width", :REQUIRED, "Left and right border width (default: 3)") do |b|
+    options[:border] = b.to_i
+  end
+  opt.on("-m", "--margin-width", :REQUIRED, "Left and right margin width (default: 1)") do |m|
+    options[:margin] = m.to_i
+  end
+  opt.on("-h", "--help", "Print usage") do
+    puts opt.banner
+    puts opt.summarize
+    exit 0
+  end
+end
+
+parser.parse!
+
+if ARGV.length <= 0 then
+  exit
+end
+
+input = ARGV.join(' ').chomp
+
+len = input.length + 2 * options[:border] + 2 * options[:margin]
+
+puts options[:character] * len
+puts options[:character] * options[:border] +
+      " " * options[:margin] +
+      input +
+      " " * options[:margin] +
+      options[:character] * options[:border]
+puts options[:character] * len

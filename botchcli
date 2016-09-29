@@ -1,10 +1,11 @@
 #!/bin/bash
 
 SUBCHAR=!
+CMDNO=1
 
 [[ "$*" =~ $SUBCHAR ]] && WORK=$* || WORK="$* $SUBCHAR"
 
-echo -n "[botchcli] $WORK> "
+echo -n "[botchcli ${CMDNO}] $WORK> "
 while read LINE; do
   if [ "x$LINE" == "x" ] ; then
     echo -n
@@ -13,5 +14,6 @@ while read LINE; do
   else
     ${WORK/$SUBCHAR/$LINE}
   fi
-  echo -n "[botchcli] $WORK> "
+  CMDNO=$((${CMDNO} + 1))
+  echo -n "[botchcli ${CMDNO}] $WORK> "
 done
