@@ -12,22 +12,27 @@ when 'o'
   num = num.to_i(8)
 when 'b'
   num = num.to_i(2)
+when 'c'
+  num = num.ord
 end
 
-dec = hex = oct = bin = true
+dec = hex = oct = bin = char = true
 out = ARGV.shift
 case out
 when 'd'
-  hex = oct = bin = false
+  hex = oct = bin = char = false
 when 'h'
-  dec = oct = bin = false
+  dec = oct = bin = char = false
 when 'o'
-  dec = hex = bin = false
+  dec = hex = bin = char = false
 when 'b'
-  dec = hex = oct = false
+  dec = hex = oct = char = false
+when 'c'
+  dec = hex = oct = bin = false
 end
 
 puts "    Decimal : #{num.to_s(10)}" if dec
-puts "Hexadecimal : #{num.to_s(16)}" if hex
-puts "      Octal : #{num.to_s(8)}" if oct
-puts "     Binary : #{num.to_s(2)}" if bin
+puts "Hexadecimal : 0x#{num.to_s(16)}" if hex
+puts "      Octal : 0#{num.to_s(8)}" if oct
+puts "     Binary : 0b#{num.to_s(2)}" if bin
+puts "      ASCII : '#{num.chr}'" if char
