@@ -6,6 +6,8 @@ exit 1 if num.nil?
 case File.basename($PROGRAM_NAME)
 when 'd'
   num = num.to_i(10)
+when 'z'
+  num = num.gsub(/x/i, 'a').gsub(/e/i, 'b').to_i(12)
 when 'h'
   num = num.to_i(16)
 when 'o'
@@ -16,22 +18,26 @@ when 'c'
   num = num.ord
 end
 
-dec = hex = oct = bin = char = true
+dec = doz = hex = oct = bin = true
+char = num > 31 && num < 128
 out = ARGV.shift
 case out
 when 'd'
-  hex = oct = bin = char = false
+        doz = hex = oct = bin = char = false
+when 'z'
+  dec =       hex = oct = bin = char = false
 when 'h'
-  dec = oct = bin = char = false
+  dec = doz =       oct = bin = char = false
 when 'o'
-  dec = hex = bin = char = false
+  dec = doz = hex =       bin = char = false
 when 'b'
-  dec = hex = oct = char = false
+  dec = doz = hex = oct =       char = false
 when 'c'
-  dec = hex = oct = bin = false
+  dec = doz = hex = oct = bin =        false
 end
 
 puts "    Decimal : #{num.to_s(10)}" if dec
+puts "    Dozenal : #{num.to_s(12).gsub(/a/, 'X').gsub(/b/, 'E')}" if doz
 puts "Hexadecimal : 0x#{num.to_s(16)}" if hex
 puts "      Octal : 0#{num.to_s(8)}" if oct
 puts "     Binary : 0b#{num.to_s(2)}" if bin
