@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+module CiscoType7
+  MAGIC="dsfd;kfoA,.iyewrkldJKDHSUBsgvca69834ncxv9873254k;fg87"
+
+  def CiscoType7.encode(pass, salt = (0..15).to_a.sample)
+    out = "%02d" % salt
+    (0...pass.length).each do |i|
+      j = (i + salt) % 53
+      byte = pass[i].ord ^ MAGIC[j].ord
+      out += "%02X" % byte
+    end
+    return out
+  end
+
+  def CiscoType7.decode(hash)
+    out = ""
+    salt = hash[0..1].to_i
+    pass = hash[2..-1]
+    (0...(pass.length/2)).each do |i|
+      j = (i + salt) % 53
+      byte = pass[(i*2)..((i*2)+1)].to_i(16) ^ MAGIC[j].ord
+      out += byte.chr
+    end
+    return out
+  end
+
+  def CiscoType7.test_equal(hash1, hash2)
+    return decode(hash1) == decode(hash2)
+  end
+end
+
+def mode_looks_like(args)
+  return :equal if args.length == 2
+  return :decode if args[0] =~ /^(0[0-9]|1[0-5])([0-9A-F]{2})+$/
+  return :encode
+end
+
+require 'optparse'
+
+options = {:mode => :magic}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: type7 [options] ARG1 [ARG2]"
+
+  opts.on("-e", "--encode", "Encode mode") do
+    options[:mode] = :encode
+  end
+
+  opts.on("-d", "--decode", "Decode mode") do
+    options[:mode] = :decode
+  end
+
+  opts.on("-q", "--equal", "Test equality mode") do
+    options[:mode] = :equal
+  end
+
+  opts.on("-h", "--help", "Display help") do
+    puts opts.banner
+    puts opts.summarize
+    puts "The default mode is magic mode, where type7 will work out what you want to do."
+    exit 0
+  end
+end.parse!
+
+options[:mode] = mode_looks_like(ARGV) if options[:mode] == :magic
+
+case options[:mode]
+when :encode
+  puts CiscoType7::encode(ARGV[0])
+when :decode
+  puts CiscoType7::decode(ARGV[0])
+when :equal
+  puts CiscoType7::test_equal(ARGV[0], ARGV[1]) ? "Match" : "Differ"
+end
