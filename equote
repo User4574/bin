@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-LINELENGTH = (ARGV.shift || 72).to_i
+LINELENGTH = (ARGV.shift.chomp || 72).to_i
+CHAR = ARGV.shift.chomp || ">"
 
 lines = $stdin.readlines
 
@@ -25,7 +26,7 @@ lines = lines.map { |line|
 lines = lines.flatten
 
 lines = lines.map { |line|
-  "> #{line}"
+  "#{CHAR} #{line}"
 }
 
 puts lines
