@@ -19,7 +19,7 @@ when 'c'
 end
 
 dec = doz = hex = oct = bin = true
-char = num > 31 && num < 128
+char = num > 31 && num < 127
 out = ARGV.shift
 case out
 when 'd'
