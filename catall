@@ -1,0 +1,9 @@
+#!/bin/bash
+
+pattern=$1
+
+for i in *$pattern* ; do
+  echo
+  echo "==> $i <=="
+  sed 's/^/  /' $i
+done
