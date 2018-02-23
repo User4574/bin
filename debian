@@ -23,25 +23,27 @@ $map = [
 $stable = 9
 
 def extras(keys)
-  if keys.include?($stable.to_s) then
-    return ["stable"]
+  if keys.include?(($stable-2).to_s) then
+    return ["oldoldstable"]
   elsif keys.include?(($stable-1).to_s) then
     return ["oldstable"]
-  elsif keys.include?(($stable-1).to_s) then
+  elsif keys.include?($stable.to_s) then
+    return ["stable"]
+  elsif keys.include?(($stable+1).to_s) then
     return ["testing"]
-  elsif keys.include?(($stable-2).to_s) then
-    return ["oldoldstable"]
   else
     return []
   end
 end
 
 def find(elem)
-  s = $map.select { |entry|
+  s = $map.map { |entry|
+    entry + extras(entry)
+  }.select { |entry|
     entry.include?(elem)
   }.first
   return nil if s.nil?
-  return s - [elem] + extras(s)
+  return s - [elem]
 end
 
 if ARGV.length != 1 then
