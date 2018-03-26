@@ -1,17 +1,19 @@
 #!/usr/bin/env ruby
 
+require 'abbrev'
+
 $map = [
   %w( buzz 1.1 ),
   %w( rex 1.2 ),
   %w( bo 1.3 ),
-  %w( hamm 2.0 2 ),
+  %w( hamm 2.0 ),
   %w( slink 2.1 ),
   %w( potato 2.2 ),
-  %w( woody 3.0 3 ),
+  %w( woody 3.0 ),
   %w( sarge 3.1 ),
-  %w( etch 4.0 4 ),
-  %w( lenny 5.0 5 ),
-  %w( squeeze 6.0 6 ),
+  %w( etch 4.0 ),
+  %w( lenny 5.0 ),
+  %w( squeeze 6.0 ),
   %w( wheezy 7 ),
   %w( jessie 8 ),
   %w( stretch 9 ),
@@ -37,10 +39,14 @@ def extras(keys)
 end
 
 def find(elem)
-  s = $map.map { |entry|
+  we = $map.map { |entry|
     entry + extras(entry)
-  }.select { |entry|
-    entry.include?(elem)
+  }
+
+  ab = Abbrev.abbrev(we.flatten)
+    
+  s = we.select { |entry|
+    entry.include?(ab[elem])
   }.first
   return nil if s.nil?
   return s - [elem]
@@ -56,7 +62,7 @@ key = ARGV.shift.strip.downcase
 res = find(key)
 
 if res.nil? then
-  puts "No such key"
+  puts "No such key or ambiguous abbreviation"
   exit 1
 end
 
