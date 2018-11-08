@@ -36,6 +36,12 @@ def mode_looks_like(args)
   return :encode
 end
 
+name = {
+  equal: "Test Equality",
+  decode: "Decode",
+  encode: "Encode"
+}
+
 require 'optparse'
 
 options = {:mode => :magic}
@@ -63,7 +69,11 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-options[:mode] = mode_looks_like(ARGV) if options[:mode] == :magic
+if options[:mode] == :magic
+  print "Magic mode casts: "
+  options[:mode] = mode_looks_like(ARGV)
+  puts name[options[:mode]]
+end
 
 case options[:mode]
 when :encode
