@@ -53,11 +53,10 @@ def find(elem)
 end
 
 if ARGV.length != 1 then
-  $stderr.puts "No key provided"
-  exit 2
+  key = "stable"
+else
+  key = ARGV.shift.strip.downcase
 end
-
-key = ARGV.shift.strip.downcase
 
 res = find(key)
 
