@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+RST="[0m"
+RED="[31m"
+GRN="[32m"
+YLW="[33m"
+BLU="[34m"
+
+def usage
+  $stderr.puts <<EOT
+Usage:
+    dehat ARCHIVE [OPTIONS]
+
+Dehat will attempt to astound you by pulling a filetree (or rabbit)
+from an archive (or hat) in a sensibleish manner.
+EOT
+  exit 1
+end
+
+archive = ARGV.shift
+
+usage if archive.nil?
+usage unless File.exist?(archive)
+
+zip = File.extname(archive) == '.zip'
+
+if zip
+  if `unzip -t #{archive}`.lines[1].split[1][-1] == ?/
+    $stderr.puts "Found a #{GRN}good#{RST} #{YLW}zip#{RST}"
+    `unzip #{archive} #{ARGV.join(?\s)}`
+  else
+    $stderr.puts "Found a #{RED}bad#{RST} #{YLW}zip#{RST}"
+    dirname = File.basename(archive, File.extname(archive))
+    if Dir.exist?(dirname)
+      exit 1
+    else
+      Dir.mkdir(dirname)
+      `unzip -d #{dirname} #{archive} #{ARGV.join(?\s)}`
+    end
+  end
+else
+  if `tar -t -a -f #{archive}`.lines[0].strip[-1] == ?/
+    $stderr.puts "Found a #{GRN}good#{RST} #{BLU}tape archive#{RST}"
+    `tar -x -a -f #{archive} #{ARGV.join(?\s)}`
+  else
+    $stderr.puts "Found a #{RED}bad#{RST} #{BLU}tape archive#{RST}"
+    dirname = File.basename(archive, File.extname(archive))
+    if Dir.exist?(dirname)
+      exit 1
+    else
+      Dir.mkdir(dirname)
+      `tar -x -a -C #{dirname} -f #{archive} #{ARGV.join(?\s)}`
+    end
+  end
+end
